@@ -1,0 +1,361 @@
+spring:
+   profiles:
+      active: dev
+      include: mqtt,rosbridge
+   datasource:
+      driver: org.h2.Driver
+      url: jdbc:h2:file:./amr;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;IGNORECASE=TRUE
+      username: sa
+      password: password
+   h2.console:
+      enabled: true # http://127.0.0.1:8080/api/h2-console/
+      settings:
+         trace: false
+         web-allow-others: true
+   main:
+      allow-circular-references: true
+   mvc:
+      async:
+         request-timeout: 3600000
+   servlet:
+      multipart:
+         maxFileSize: 1000MB
+         maxRequestSize: 1000MB
+
+server:
+   port: 8081
+   servlet:
+      context-path: /api
+   compression:
+      enabled: true
+
+management:
+   endpoints:
+      web:
+         exposure:
+            include: "*"
+   endpoint:
+      health:
+         show-details: always # never, when-authorized, always
+      shutdown:
+         enabled: true
+      restart:
+         enabled: true
+   info:
+      java:
+         enabled: true
+
+info:
+   app:
+      name: "@project.name@"
+      description: "@project.description@"
+      version: "@project.version@"
+      encoding: "@project.build.sourceEncoding@"
+      java:
+         source: "@java.version@"
+         target: "@java.version@"
+
+springdoc:
+   title: ${info.app.name}
+   version: ${info.app.version}
+   description: ${info.app.description}
+   swagger-ui:
+      enabled: true
+      doc-expansion: list # full, list, none
+      tagsSorter: alpha
+      operationsSorter: alpha # alpha, method
+   show-actuator: false
+   use-fqn: true
+
+logging:
+   level:
+      org.springframework.security: #DEBUG
+      org.springframework.web.filter.CommonsRequestLoggingFilter: #DEBUG
+
+#---
+
+acl:
+   apiKeyList:
+   - token: 1df5c285b32e4532b23ec40569200d2a
+     cidr: 127.0.0.1/32
+   - token: f05914ea33124ba7a6cab301627c8adf
+     cidr: 0.0.0.0/0
+   - token: rvautotech
+     cidr: 0.0.0.0/0
+
+action:
+   unlock:
+      password: 123456
+
+cellular:
+   autoStartup:
+      enabled: false
+      interval: 60000
+   device: netgear-nighthawk-m1 # alcatel-ik40, netgear-nighthawk-m1
+   netgearNighthawkM1:
+      host: 192.168.31.1
+
+door:
+   enabled: true
+   apiKey: f05914ea33124ba7a6cab301627c8adf
+
+jwt:
+   secretKey: RVAutotech
+   accessTokenDuration: 1800000 # 30 mins
+   refreshTokenDuration: 86400000 # 24 hours
+
+modbus:
+   ieq:
+      autoStartup:
+         enabled: false
+         interval: 60000
+      ieqSensor1:
+         enabled: false
+         comPort: /dev/ttyUSB0 # COM5
+         baudRate: 19200
+         dataBits: 8
+         parity: 0
+         stopBits: 2
+         slave: 0x20
+      ieqSensor2:
+         enabled: false
+         comPort: /dev/ttyUSB1 # COM6
+         baudRate: 19200
+         dataBits: 8
+         parity: 0
+         stopBits: 2
+         slave: 0x20
+
+mqtt:
+   internalBroker:
+      enabled: true
+      hostname: 127.0.0.1
+      port: 1883
+      username:
+      password:
+      useSSL: false
+      truststoreFilename: 
+      truststorePassword: 
+      maxInflight: 20
+   externalBroker:
+      enabled: false
+      hostname: 43.252.170.11
+      port: 1883
+      username: #artemis
+      password: #artemis
+      useSSL: false #true
+      truststoreFilename: #server-ca-truststore.p12
+      truststorePassword: #securepass
+      maxInflight: 20
+   webPubSub:
+      enabled: false
+      connectionString: Endpoint=https://rv-arcs.webpubsub.azure.com;AccessKey=3ThHfey9ewz4Pt227EcTXIbjs6y7bbT+0RJ5gq3fO6U=;Version=1.0;
+      hub: ${system.tenantId}
+
+mybatis:
+   mapper-locations: classpath:mapper/*.xml
+   type-aliases-package: com.rvautotech.fobo.amr.entity
+
+ros:
+   rosManager: com.rvautotech.fobo.amr.manager.RosManager
+   masterUri: http://localhost:11311
+   host: # default: Non-loopback address
+   home: /home/europa
+   dynamicReconfigure:
+      path: ${ros.home}/fzi_ws/src/follow_me_launch/configuration_files/robots/callisto
+      load: source ${ros.home}/fzi_ws/devel_isolated/setup.bash && rosrun dynamic_reconfigure dynparam load /base_controller ${ros.dynamicReconfigure.path}/%s.yaml # rosrun dynamic_reconfigure dynparam load /base_controller $(rospack find follow_me_launch)/configuration_files/robots/callisto/base_controller_params_navigation.yaml
+   rosNode:
+      rosbag:
+         path: ${ros.home}/rosbag/
+      map:
+         path: ${ros.home}/fzi_ws/src/follow_me_launch/etc/maps/%s/
+      waypoint:
+         radius: 0.3
+      localization:
+         path: ${ros.home}/fzi_ws/src/follow_me_launch/etc/initial_localization/
+      node:
+         enabled: false
+      segment:
+         enabled: false
+      navigation:
+         mode: AUTONOMY # AUTONOMY, PATH_FOLLOWING
+         autonomy:
+            clearCostmapsEnabled: true
+            ignoreOrientationEnabled: true
+            distanceToTarget: 0
+         pathFollowing:
+            enabled: false
+         interceptorList:
+         #- clazz: com.rvautotech.fobo.amr.thirdparty.kml.KmlNavigationInterceptor
+         #  parameters: {pin: 2}
+         #- clazz: com.rvautotech.fobo.amr.thirdparty.link.CarparkNavigationInterceptor
+         #  parameters: {detourLimit: 10}
+      velocityCommand:
+         enabled: true
+      battery:
+         interval: 5000
+      robotPose:
+         interval: 1000
+      poseDeviation:
+         interval: 5000
+      led:
+         version: 2 # 1 or 2 or 3
+      fan:
+         enabled: true
+      sound:
+         enabled: false
+      baseIo: # brake, e-stop, lidar's safety
+         enabled: true
+         version: SICK_PLC # SICK_PLC or STM32
+      docking:
+         enabled: true
+      charging:
+         enabled: false
+         useUndock: true
+      tilt:
+         enabled: true
+         angle: 10 # degree
+      safety:
+         enabled: true
+         obstacleDetectionTimeUp: 30000
+      speed:
+         interval: 1000
+      lidar:
+         enabled: true
+      joystick:
+         enabled: false
+      followMePairing:
+         enabled: true
+         footOnly: false
+      followRobotPairing:
+         enabled: false
+      digitalIO:
+         enabled: false
+      topModuleHeartbeat:
+         enabled: false
+         timeout: 10000
+      cabinet:
+         enabled: false
+      rotaryHead:
+         enabled: false
+         version: 2 # 2 or 3
+      trayRack:
+         enabled: false
+      ieq:
+         enabled: false
+      shelfCarrier:
+         enabled: false
+      rfid:
+         enabled: false
+      hikvisionCamera:
+         enabled: false
+         capacity: 10
+         imagePath: ${ros.home}/hikvisionCamera
+         interval: 1000
+      nirCamera:
+         enabled: false
+         autoStartup: false
+         imagePath: ${ros.home}/nirCamera
+         interval: 1000
+         rollingFileRetentionDay: 30
+      thermalCamera:
+         enabled: false
+         autoStartup: false
+         imagePath: ${ros.home}/thermalCamera
+         interval: 1000
+         rollingFileRetentionDay: 30
+      webcam:
+         enabled: false
+         imagePath: ${ros.home}/webcam
+         interval: 1000
+         rollingFileRetentionDay: 30
+
+rosbridge:
+   fzi:
+      enabled: true
+      hostname: localhost
+      port: 9091
+   cotek:
+      enabled: false
+      hostname: ${rosbridge.fzi.hostname}
+      port: 9092
+
+schmidt:
+   enabled: false
+   baseUrl: http://127.0.0.1:5002
+   username: rv_admin
+   password: 123456
+   clientId: 11B7ED76-B978-411B-8ECB-36B21220DE3E
+
+system:
+   tenantId: arcs
+   robotId: RV-ROBOT-104
+   robotType: DELIVERY # CONCIERGE, DELIVERY, DISINFECTION, FLOOR_SCRUB, FORKLIFT, MOBILE_CHAIR, PATROL, STOCKTAKING, CUSTOM_MADE
+   robotSubtype: NA # NA | BEVERAGE_DELIVERY, TRAY_DELIVERY | CARPARK_PATROL, PRISON_PATROL, PROPERTY_PATROL
+   fms:
+      enabled: false
+      baseUrl: http://rv-dev.eastasia.cloudapp.azure.com:8080/api
+      apiKey: f05914ea33124ba7a6cab301627c8adf
+   heartbeat:
+      interval: 60000
+
+system-sensor:
+   autoStartup:
+      enabled: false
+      interval: 60000
+
+wifi:
+   autoStartup:
+      enabled: false
+      interval: 60000
+
+#########
+# Robot #
+#########
+
+gaussian:
+   baseUrl: https://openapi.gs-robot.com
+   clientId: wRyhmTxIbSqCnZvV7Ze9LYIo
+   clientSecret: HEgy7Gq4RQMXKJl8C9ii7ynZsZFGCvl8hScymUIcyEbUsyQHJ8
+   openAccessKey: 1acf19f159f3f761b89c50ace08caf31
+   robotId: GS101-0100-M5N-0000
+
+iclean:
+   baseUrl: https://iclean.aike1860.com/iclean-cloud
+   customerId: 168
+   deviceId: 718
+   serial: 2110-006-01-00008
+
+mir:
+   host: 192.168.12.20
+   baseUrl: http://${mir.host}/api/v2.0.0
+   username: distributor
+   password: distributor
+   origin:
+      x: -11.24
+      y: -41.52
+
+###########
+# Project #
+###########
+
+link:
+   enabled: false
+
+siemens:
+   enabled: false
+   simulator: false
+   baseUrl: https://j6-robot-poc-docker-1.azurewebsites.net/v1 # https://j6-robot-poc.azurewebsites.net/v1
+   username: user
+   password: password
+
+vtc:
+   enabled: false
+   modbus:
+      enabled: false
+      host: 127.0.0.1
+      port: 502
+      slave: 1
+   remote:
+      baseUrl: http://127.0.0.1:8081/api
+      apiKey: f05914ea33124ba7a6cab301627c8adf
