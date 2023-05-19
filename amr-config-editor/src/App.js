@@ -1,6 +1,6 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
-import { load, dump } from "js-yaml";
+// import { load, dump } from "js-yaml";
 import { ChakraProvider } from "@chakra-ui/react";
 import {
   FormControl,
@@ -13,20 +13,27 @@ import {
   AccordionPanel,
   Button,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
 import YmlForm from "./YmlForm";
-import VscodeEditor from "./VscodeEditor";
+import { useDispatch, useSelector } from "react-redux";
+// import VscodeEditor from "./VscodeEditor";
 
 function App() {
+  const dispatch = useDispatch();
+  const toast = useToast();
+  const toastIdRef = React.useRef();
   const [yamlValue, setYamlValue] = useState(null);
   const [formElements, setFormElements] = useState([]);
-  const [temp, setTemp] = useState(null);
+
+  const toastsData = useSelector((state) => state.toastMessagers);
+
   useEffect(() => {
     const getYaml = async () => {
       const response = await fetch("/api/amr-config");
       const text = await response.text();
-      console.log(text);
-      setTemp(text);
+      // console.log(text);
+      // setTemp(text);
       setYamlValue(JSON.parse(text));
     };
     getYaml();
@@ -140,6 +147,13 @@ function App() {
     }
   }, [yamlValue]);
 
+  useEffect(() => {
+    if (toastsData[0] != null) {
+      const { payload } = toastsData[0];
+      addToast(payload);
+    }
+  }, [toastsData]);
+
   const handleChangeValue = (key, value) => {
     const keys = key.split("|");
     let obj = yamlValue;
@@ -151,16 +165,13 @@ function App() {
   };
 
   const handleSubmit = () => {
-    const jsonToYaml = dump(yamlValue, {
-      noCompatMode: true,
-      noQuotes: true,
-      indent: 2,
-      lineWidth: -1,
-    });
-    console.log(yamlValue);
-    console.log(jsonToYaml);
-    console.log(JSON.stringify(yamlValue));
-    console.log(typeof yamlValue);
+    // const jsonToYaml = dump(yamlValue, {
+    //   noCompatMode: true,
+    //   noQuotes: true,
+    //   indent: 2,
+    //   lineWidth: -1,
+    // });
+
     // fs.writeFileSync("/amr-config/application.yml", yamlString);
     fetch("/api/amr-config", {
       method: "POST",
@@ -168,7 +179,23 @@ function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(yamlValue),
+    }).then(() => {
+      const message = {
+        title: "Notification",
+        description: "Configuration saved successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      };
+      dispatch({ type: "ADD_TOAST", message });
     });
+  };
+
+  const addToast = (payload) => {
+    const { message } = payload;
+    if (message) {
+      toastIdRef.current = toast(message);
+    }
   };
 
   return (

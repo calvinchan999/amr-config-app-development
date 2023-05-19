@@ -1,11 +1,11 @@
 mqtt:
   internalBroker:
     enabled: true
-    hostname: 127.0.0.11
+    hostname: 127.0.0.1
     useSSL: false
   externalBroker:
     enabled: true
-    hostname: rv-demo.eastasia.cloudapp.azure.com
+    hostname: rv-dev.eastasia.cloudapp.azure.com
     useSSL: false
   webPubSub:
     enabled: false
