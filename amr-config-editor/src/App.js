@@ -30,7 +30,7 @@ function App(props) {
 
   useEffect(() => {
     const getYaml = async () => {
-      const response = await fetch("/api/amr-config");
+      const response = await fetch("/node/api/amr-config");
       const text = await response.text();
       // console.log(text);
       // setTemp(text);
@@ -165,17 +165,7 @@ function App(props) {
   };
 
   const handleSubmit = () => {
-    // const jsonToYaml = dump(yamlValue, {
-    //   noCompatMode: true,
-    //   noQuotes: true,
-    //   indent: 2,
-    //   lineWidth: -1,
-    // });
-
-    // fs.writeFileSync("/amr-config/application.yml", yamlString);
-    const { node_server } = props.config;
-    const { endpoint } = node_server;
-    fetch(`${endpoint}/node/api/amr-config`, {
+    fetch(`/node/api/amr-config`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

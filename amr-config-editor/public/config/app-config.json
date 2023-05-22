@@ -1,7 +1,4 @@
 {
-  "node_server": {
-    "endpoint": "http://localhost:5000"
-  },
   "amr": {
     "endpoint": "http://calvinchan999.eastasia.cloudapp.azure.com:8081"
   }
