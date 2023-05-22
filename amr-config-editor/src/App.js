@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from "react-redux";
 // import VscodeEditor from "./VscodeEditor";
 
 function App(props) {
-  console.log(props);
   const dispatch = useDispatch();
   const toast = useToast();
   const toastIdRef = React.useRef();
@@ -31,10 +30,21 @@ function App(props) {
   useEffect(() => {
     const getYaml = async () => {
       const response = await fetch("/node/api/amr-config");
-      const text = await response.text();
-      // console.log(text);
-      // setTemp(text);
-      setYamlValue(JSON.parse(text));
+      if (response.status === 200) {
+        const text = await response.text();
+        // console.log(text);
+        // setTemp(text);
+        setYamlValue(JSON.parse(text));
+      }else {
+        const message = {
+          title: "Error",
+          description: "Application-prod.yml not found",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        };
+        dispatch({ type: "ADD_TOAST", message });
+      }
     };
     getYaml();
   }, []);

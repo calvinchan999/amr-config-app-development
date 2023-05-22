@@ -5,7 +5,7 @@ import reportWebVitals from "./reportWebVitals";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 import rootReducer from "./reducers";
-// import "./index.css";
+import "./index.css";
 // import "./global.css";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
