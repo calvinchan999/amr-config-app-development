@@ -1,6 +1,5 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
-// import { load, dump } from "js-yaml";
 import { ChakraProvider } from "@chakra-ui/react";
 import {
   FormControl,
@@ -19,7 +18,8 @@ import YmlForm from "./YmlForm";
 import { useDispatch, useSelector } from "react-redux";
 // import VscodeEditor from "./VscodeEditor";
 
-function App() {
+function App(props) {
+  console.log(props);
   const dispatch = useDispatch();
   const toast = useToast();
   const toastIdRef = React.useRef();
@@ -173,22 +173,73 @@ function App() {
     // });
 
     // fs.writeFileSync("/amr-config/application.yml", yamlString);
-    fetch("/api/amr-config", {
+    const { node_server } = props.config;
+    const { endpoint } = node_server;
+    fetch(`${endpoint}/node/api/amr-config`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(yamlValue),
-    }).then(() => {
-      const message = {
-        title: "Notification",
-        description: "Configuration saved successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      };
-      dispatch({ type: "ADD_TOAST", message });
-    });
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          const message = {
+            title: "Notification",
+            description: "Configuration saved successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          };
+          dispatch({ type: "ADD_TOAST", message });
+        }
+      })
+      .catch((err) => {
+        const message = {
+          title: "Error",
+          description: "Failed",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        };
+        dispatch({ type: "ADD_TOAST", message });
+      });
+  };
+
+  const onRestartAmr = () => {
+    const { amr } = props.config;
+    const { endpoint } = amr;
+    fetch(`${endpoint}/amr/api/actuator/restart`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: "",
+    })
+      .then((res) => {
+        console.log(res);
+        if (res) {
+          const message = {
+            title: "Notification",
+            description: res.message,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          };
+          dispatch({ type: "ADD_TOAST", message });
+        }
+      })
+      .catch(() => {
+        const message = {
+          title: "Error",
+          description: "Failed",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        };
+        dispatch({ type: "ADD_TOAST", message });
+      });
   };
 
   const addToast = (payload) => {
@@ -206,7 +257,9 @@ function App() {
         </div>
         <div className="submit-btn">
           <Stack direction="column">
-            <Button colorScheme="red">Reboot</Button>
+            <Button colorScheme="red" onClick={onRestartAmr}>
+              Reboot
+            </Button>
             <Button colorScheme="blue" onClick={handleSubmit}>
               Save
             </Button>
