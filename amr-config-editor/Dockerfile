@@ -3,10 +3,10 @@
 FROM node:10.16.0-buster-slim as builder
 COPY package.json package-lock.json ./
 RUN npm install
-RUN npm install -D react-scripts
 WORKDIR /usr/src/app
 COPY . .
 RUN npm cache clean --force
+RUN npm install -D react-scripts
 RUN npm run build
 
 # production environment
