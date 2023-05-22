@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 WORKDIR /usr/src/app
 COPY . .
+RUN npm install -D react-scripts
 RUN npm run build
 
 # production environment
