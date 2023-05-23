@@ -35,7 +35,7 @@ function App(props) {
         // console.log(text);
         // setTemp(text);
         setYamlValue(JSON.parse(text));
-      }else {
+      } else {
         const message = {
           title: "Error",
           description: "Application-prod.yml not found",
@@ -222,7 +222,7 @@ function App(props) {
         if (res) {
           const message = {
             title: "Notification",
-            description: res.message,
+            description: "Restarting",
             status: "success",
             duration: 3000,
             isClosable: true,
