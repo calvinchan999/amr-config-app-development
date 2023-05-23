@@ -208,9 +208,9 @@ function App(props) {
   };
 
   const onRestartAmr = () => {
-    const { amr } = props.config;
-    const { endpoint } = amr;
-    fetch(`${endpoint}/amr/api/actuator/restart`, {
+    // const { amr } = props.config;
+    // const { endpoint } = amr;
+    fetch(`/amr/api/actuator/restart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
