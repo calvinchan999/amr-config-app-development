@@ -18,7 +18,7 @@ router.post("/", (req, res) => {
     indent: 2,
     lineWidth: -1,
   });
-
+  
   fs.writeFile("assets/amr-config/application-prod.yml", data, (err) => {
     if (err) {
       console.error(err);

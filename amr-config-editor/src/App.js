@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 // import VscodeEditor from "./VscodeEditor";
 
 function App(props) {
+  const { rules } = props.config;
   const dispatch = useDispatch();
   const toast = useToast();
   const toastIdRef = React.useRef();
@@ -55,8 +56,17 @@ function App(props) {
         return [];
       }
       const elements = Object.entries(yamlObject).map(([key, value]) => {
+        const disabled = rules?.[`${prefix}${key}`]?.disabled
+          ? rules[`${prefix}${key}`]["disabled"]
+          : false;
+        const regexExpression = rules?.[`${prefix}${key}`]?.regexExpression
+          ? rules[`${prefix}${key}`]["regexExpression"]
+          : null;
+        const formType = rules?.[`${prefix}${key}`]?.type
+          ? rules[`${prefix}${key}`]["type"]
+          : null;
         if (typeof value === "object" && !Array.isArray(value)) {
-          const nestedElements = parseYamlToForm(value, `${prefix}${key}|`);
+          const nestedElements = parseYamlToForm(value, `${prefix}${key}^`);
 
           return (
             <Accordion
@@ -86,9 +96,10 @@ function App(props) {
             >
               <FormLabel className="form-label">{key}</FormLabel>
               <Input
-                type="text"
+                type={formType ? formType : "text"}
                 defaultValue={value}
                 className="form-label"
+                isDisabled={disabled}
                 onChange={(event) => {
                   const { value } = event.target;
                   handleChangeValue(`${prefix}${key}`, value);
@@ -106,7 +117,8 @@ function App(props) {
             >
               <FormLabel className="form-label">{key}</FormLabel>
               <Input
-                type="text"
+                type={formType ? formType : "text"}
+                isDisabled={disabled}
                 defaultValue={JSON.stringify(value)}
                 className="form-label"
                 onChange={(event) => {
@@ -132,6 +144,7 @@ function App(props) {
               <Checkbox
                 defaultChecked={value}
                 className="form-label"
+                isDisabled={disabled}
                 key={`${prefix}${key}`}
                 id={`${prefix}${key}`}
                 onChange={(event) => {
@@ -165,7 +178,7 @@ function App(props) {
   }, [toastsData]);
 
   const handleChangeValue = (key, value) => {
-    const keys = key.split("|");
+    const keys = key.split("^");
     let obj = yamlValue;
     for (let i = 0; i < keys.length - 1; i++) {
       obj = obj[keys[i]];

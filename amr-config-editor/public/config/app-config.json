@@ -1,5 +1,13 @@
 {
-  "amr": {
-    "endpoint": "http://calvinchan999.eastasia.cloudapp.azure.com:8081"
+  "rules": {
+    "mqtt^internalBroker^hostname": {
+      "disabled": true,
+      "regularExpression": "",
+      "type": ""
+    },
+    "ros^rosNode^tilt^enabled": {
+      "disabled": false,
+      "regularExpression": ""
+    }
   }
 }
