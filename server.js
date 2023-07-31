@@ -1,8 +1,10 @@
 const express = require("express"); //Line 1
+const cors = require("cors");
 const app = express(); //Line 2
 const port = process.env.PORT || 5000; //Line 3
 const amrConfigYaml = require("./routes/amrConfigYaml");
 
+app.use(cors());
 app.use(express.json());
 app.use("/api/amr-config", amrConfigYaml);
 
